@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>فكّي شفرة مشاعرك | الكوتش إيمان</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Tahoma",sans-serif;background:#f7f3ef;color:#3d3532}
+.wrap{max-width:760px;margin:auto;padding:24px 16px 40px}
+.brand{text-align:center;margin:8px 0 20px}
+.brand .small{font-size:14px;color:#8a7068}
+.brand h1{margin:6px 0;font-size:30px}
+.brand p{margin:0;color:#766762}
+.card{background:#fff;border-radius:24px;padding:24px;box-shadow:0 8px 30px #0000000d;margin-top:16px}
+.progress{height:8px;background:#eee5df;border-radius:10px;overflow:hidden;margin:14px 0 24px}
+.bar{height:100%;width:25%;background:#a86f5d;transition:.3s}
+.step{color:#8a7068;font-size:14px;font-weight:bold}
+h2{font-size:22px;margin:12px 0 18px}
+.choice{display:block;width:100%;border:1px solid #e2d6cf;background:#fcfaf8;padding:15px;border-radius:16px;margin:10px 0;text-align:right;font-size:16px;cursor:pointer}
+.choice:hover,.choice.selected{border-color:#a86f5d;background:#f3e5df}
+button.next{border:0;background:#a86f5d;color:white;padding:14px 24px;border-radius:15px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:12px}
+button.next:disabled{opacity:.45;cursor:not-allowed}
+.note{color:#9a5e4d;min-height:22px;margin-top:12px;font-size:14px}
+.hidden{display:none}
+.result h2{margin-top:0}
+.resultbox{background:#faf4f0;border-radius:16px;padding:16px;margin:12px 0}
+.label{font-weight:bold;color:#8b5e50}
+.tip{background:#f0f5ef;border-radius:16px;padding:16px;margin-top:16px}
+.restart{background:#fff;color:#8b5e50;border:1px solid #c9afa5;padding:12px 18px;border-radius:14px;font-weight:bold;cursor:pointer}
+.footer{text-align:center;color:#8a7068;font-size:13px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="small">ورشة إدارة الانفعالات</div>
+    <h1>فكّي شفرة مشاعرك 🧩</h1>
+    <p>مع الكوتش إيمان</p>
+  </div>
+
+  <section class="card" id="game">
+    <div class="step" id="step"></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <h2 id="question"></h2>
+    <div id="choices"></div>
+    <div class="note" id="note"></div>
+    <button class="next" id="next" disabled>التالي</button>
+  </section>
+
+  <section class="card result hidden" id="result"></section>
+  <div class="footer">تجربة تدريبية للتأمل وفهم المشاعر، وليست تشخيصًا نفسيًا.</div>
+</div>
+
+<script>
+const data=[
+ {q:"1) اختاري موقفًا قريبًا حرّك مشاعرك مؤخرًا",c:[
+ "حد اتعامل معايا بطريقة ضايقتني",
+ "حسيت إن مجهودي مش متقدّر",
+ "اتحطيت تحت ضغط أكبر من طاقتي",
+ "حد تعدّى على حدودي"]},
+ {q:"2) ما الشعور الأقرب لما يحدث داخلك؟",c:[
+ "غضب",
+ "حزن",
+ "خوف أو قلق",
+ "إحباط"]},
+ {q:"3) لو بصّيتي أعمق، إيه الرسالة اللي ممكن تكون تحت الشعور؟",c:[
+ "أنا مش مسموعة أو مش مفهومة",
+ "أنا محتاجة تقدير واهتمام",
+ "أنا محتاجة أمان وطمأنينة",
+ "أنا محتاجة احترام وحدود واضحة"]},
+ {q:"4) إيه الاحتياج اللي يستحق الاهتمام الآن؟",c:[
+ "راحة ومساحة لنفسي",
+ "تقدير واعتراف بمجهودي",
+ "أمان ودعم",
+ "حدود واضحة وطريقة تعبير أهدأ"]}
+];
+
+let step=0,answers=[],selected=null;
+const $=id=>document.getElementById(id);
+
+function render(){
+ $("step").textContent=`المرحلة ${step+1} من ${data.length}`;
+ $("bar").style.width=((step+1)/data.length*100)+"%";
+ $("question").textContent=data[step].q;
+ $("choices").innerHTML="";
+ $("note").textContent="";
+ selected=null;
+ $("next").disabled=true;
+ data[step].c.forEach((txt,i)=>{
+   const b=document.createElement("button");
+   b.className="choice";
+   b.textContent=txt;
+   b.type="button";
+   b.onclick=()=>{
+     document.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));
+     b.classList.add("selected");
+     selected=i;
+     answers[step]=txt;
+     $("next").disabled=false;
+   };
+   $("choices").appendChild(b);
+ });
+ $("next").textContent=step===data.length-1?"اكتشفي رسالتك":"التالي";
+}
+$("next").onclick=()=>{
+ if(selected===null){$("note").textContent="اختاري إجابة واحدة الأول.";return}
+ if(step<data.length-1){step++;render();return}
+ $("game").classList.add("hidden");
+ $("result").classList.remove("hidden");
+ $("result").innerHTML=`
+ <h2>رسالتك من اللعبة ✨</h2>
+ <p>المشاعر ليست مشكلة يجب التخلص منها. أحيانًا تكون إشارة تساعدنا نكتشف احتياجًا أو حدًا أو قيمة مهمة بالنسبة لنا.</p>
+ <div class="resultbox"><span class="label">الموقف:</span> ${answers[0]}</div>
+ <div class="resultbox"><span class="label">الشعور:</span> ${answers[1]}</div>
+ <div class="resultbox"><span class="label">الرسالة الأعمق:</span> ${answers[2]}</div>
+ <div class="resultbox"><span class="label">الاحتياج:</span> ${answers[3]}</div>
+ <div class="tip"><strong>سؤال الورشة:</strong><br>ما التصرف الصغير والمتزن الذي أستطيع اختياره الآن بدلًا من أن أتصرف تحت تأثير الانفعال؟</div>
+ <br><button class="restart" onclick="location.reload()">إعادة اللعبة</button>`;
+};
+render();
+</script>
+</body>
+</html>
